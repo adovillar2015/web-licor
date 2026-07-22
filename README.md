@@ -1,4 +1,5 @@
 Web-licor
+
 La aplicación web está diseñada como una plataforma de comercio electrónico especializada en la venta de bebidas alcohólicas. El sistema implementa un modelo de gestión basado en roles, diferenciando las funcionalidades disponibles para clientes y administradores.
 
 El rol de cliente permite consultar el catálogo de productos disponibles, visualizar la información de cada artículo y realizar el proceso de compra a través de la plataforma.
