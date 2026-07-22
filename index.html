@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LICOR EXPRESS - Portal de Licores & Inventario</title>
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- 1. BARRA DE NAVEGACIÓN SUPERIOR (DESKTOP GLASSMORPHIC) -->
+    <nav class="navbar">
+        <div class="nav-brand" onclick="switchTab('catalog')">
+            <i class="fa-solid fa-wine-glass"></i>
+            <h1>LICOR EXPRESS</h1>
+        </div>
+
+        <div class="nav-menu">
+            <button id="tab-btn-catalog" class="nav-item active" onclick="switchTab('catalog')">
+                <i class="fa-solid fa-store"></i> Catálogo
+            </button>
+            <button id="tab-btn-admin" class="nav-item" onclick="switchTab('admin')">
+                <i class="fa-solid fa-user-shield"></i> Panel Administrador
+            </button>
+            <button id="tab-btn-inspector" class="nav-item" onclick="switchTab('inspector')" style="display: none;">
+                <i class="fa-solid fa-database"></i> Inspector de Datos
+            </button>
+        </div>
+
+        <div class="nav-role-badge" id="role-badge">
+            <div class="status-dot"></div>
+            <span id="role-text">Rol: Cliente</span>
+        </div>
+    </nav>
+
+    <!-- 2. CONTENEDOR PRINCIPAL DE PANTALLAS -->
+    <main class="app-container">
+
+        <!-- PESTAÑA A: CATÁLOGO DE CLIENTES -->
+        <section id="tab-catalog" class="tab-content active">
+            <div class="catalog-layout">
+                
+                <!-- Sidebar de Búsqueda y Filtros -->
+                <aside class="catalog-sidebar">
+                    <div class="search-container">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="catalog-search" class="search-input" placeholder="Buscar botellas, marcas..." oninput="filterCatalog()">
+                    </div>
+
+                    <h3 class="sidebar-title">Categorías</h3>
+                    <div class="sidebar-menu" id="catalog-category-menu">
+                        <button class="sidebar-menu-item active" onclick="filterCatalogByCategory('All', this)">
+                            <span>Todos los Licores</span>
+                            <span class="badge" id="badge-all">0</span>
+                        </button>
+                        <button class="sidebar-menu-item" onclick="filterCatalogByCategory('Whisky', this)">
+                            <span>Whisky</span>
+                            <span class="badge" id="badge-whisky">0</span>
+                        </button>
+                        <button class="sidebar-menu-item" onclick="filterCatalogByCategory('Ron', this)">
+                            <span>Ron</span>
+                            <span class="badge" id="badge-ron">0</span>
+                        </button>
+                        <button class="sidebar-menu-item" onclick="filterCatalogByCategory('Vodka', this)">
+                            <span>Vodka</span>
+                            <span class="badge" id="badge-vodka">0</span>
+                        </button>
+                        <button class="sidebar-menu-item" onclick="filterCatalogByCategory('Tequila', this)">
+                            <span>Tequila</span>
+                            <span class="badge" id="badge-tequila">0</span>
+                        </button>
+                        <button class="sidebar-menu-item" onclick="filterCatalogByCategory('Cerveza', this)">
+                            <span>Cerveza</span>
+                            <span class="badge" id="badge-cerveza">0</span>
+                        </button>
+                        <button class="sidebar-menu-item" onclick="filterCatalogByCategory('Aguardiente', this)">
+                            <span>Aguardiente</span>
+                            <span class="badge" id="badge-aguardiente">0</span>
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Área Principal del Catálogo -->
+                <div class="catalog-main">
+                    <div class="catalog-main-header">
+                        <div>
+                            <h2 id="catalog-category-title">Todos los Licores</h2>
+                            <p>Consulta la disponibilidad y precios actualizados al instante.</p>
+                        </div>
+                    </div>
+
+                    <!-- Rejilla de Licores -->
+                    <div class="products-grid" id="catalog-products-grid">
+                        <!-- Generado por app.js -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- PESTAÑA B: PANEL DE ADMINISTRACIÓN (LOGIN O DASHBOARD) -->
+        <section id="tab-admin" class="tab-content">
+            
+            <!-- SUB-VISTA B1: INICIO DE SESIÓN -->
+            <div id="admin-login-view" class="admin-login-container">
+                <div class="login-card">
+                    <div class="login-icon-box">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h2>Administración LICOR EXPRESS</h2>
+                    <p>Ingresa credenciales para acceder a la gestión de inventario</p>
+                    
+                    <div class="login-error" id="login-error-msg">
+                        <i class="fa-solid fa-circle-exclamation"></i> Usuario o contraseña incorrectos.
+                    </div>
+
+                    <form onsubmit="handleAdminLogin(event)">
+                        <div class="input-group">
+                            <label for="admin-username">Usuario</label>
+                            <input type="text" id="admin-username" class="input-control" placeholder="Ej. admin" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="admin-password">Contraseña</label>
+                            <input type="password" id="admin-password" class="input-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                            <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SUB-VISTA B2: DASHBOARD DE CONTROL DE ADMINISTRADOR -->
+            <div id="admin-dashboard-view" class="admin-dashboard" style="display: none;">
+                
+                <!-- Encabezado del Dashboard -->
+                <div class="admin-header-row">
+                    <div>
+                        <h2>Panel General de Gestión</h2>
+                        <p>Supervisa el stock, actualiza existencias y edita la disponibilidad.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="openProductFormModal('add')">
+                            <i class="fa-solid fa-plus"></i> Agregar Nuevo Licor
+                        </button>
+                        <button class="btn btn-secondary" onclick="handleAdminLogout()">
+                            <i class="fa-solid fa-power-off"></i> Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Estadísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value" id="stat-products-count">0</span>
+                            <span class="label">Tipos de Licor</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-wine-bottle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value" id="stat-bottles-count">0</span>
+                            <span class="label">Botellas Totales</span>
+                        </div>
+                    </div>
+                    <div class="stat-card alert-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value" id="stat-alerts-count">0</span>
+                            <span class="label">Existencias Críticas (< 5)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas de Stock Crítico y Tabla Completa -->
+                <div class="admin-split-layout">
+                    
+                    <!-- Alertas de Stock -->
+                    <div class="alert-panel" id="admin-stock-alerts-panel" style="display: none;">
+                        <div class="alert-panel-header">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <h3>Alertas de Reabastecimiento Crítico</h3>
+                        </div>
+                        <div class="alert-container-grid" id="admin-stock-alerts-container">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Panel Principal de Tabla de Inventario -->
+                    <div class="inventory-panel">
+                        <div class="panel-header">
+                            <h3>Listado de Licores e Inventario</h3>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="web-table">
+                                <thead>
+                                    <tr>
+                                        <th>Licor / Categoría</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Existencias (Stock)</th>
+                                        <th>Estado</th>
+                                        <th style="text-align: center;">Acciones rápidas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-inventory-table-body">
+                                    <!-- Inyectado por app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- PESTAÑA C: INSPECTOR DE BASE DE DATOS LOCALSTORAGE -->
+        <section id="tab-inspector" class="tab-content">
+            <div class="database-inspector">
+                <div class="inspector-header-row">
+                    <div class="inspector-title">
+                        <i class="fa-solid fa-database"></i>
+                        <h2>Inspector de Base de Datos Local (Navegador)</h2>
+                    </div>
+                    <div class="inspector-tabs">
+                        <button class="inspector-tab-btn active" id="tab-inspect-products" onclick="switchInspectorTab('products')">
+                            tabla_productos
+                        </button>
+                        <button class="inspector-tab-btn" id="tab-inspect-users" onclick="switchInspectorTab('users')">
+                            tabla_usuarios
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    
+                    <!-- Tabla de Productos -->
+                    <table class="web-table" id="inspector-table-products">
+                        <thead>
+                            <tr>
+                                <th>id (PK)</th>
+                                <th>nombre</th>
+                                <th>categoria</th>
+                                <th>precio (int)</th>
+                                <th>cantidad (int)</th>
+                                <th>descripcion</th>
+                                <th>imagen (str)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspector-products-body">
+                            <!-- Filas dinámicas -->
+                        </tbody>
+                    </table>
+
+                    <!-- Tabla de Usuarios -->
+                    <table class="web-table" id="inspector-table-users" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>usuario (PK)</th>
+                                <th>contraseña (texto plano)</th>
+                                <th>rol / nivel de acceso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="code-badge">admin</td>
+                                <td>admin123</td>
+                                <td>Administrador (Lectura y Escritura completa)</td>
+                            </tr>
+                            <tr>
+                                <td class="code-badge">cliente_general</td>
+                                <td>(Sin autenticación obligatoria)</td>
+                                <td>Cliente (Lectura del catálogo público)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 3. VENTANAS MODALES (FROSTED GLASS EFFECT OVERLAYS) -->
+
+    <!-- MODAL A: DETALLE DEL PRODUCTO PARA EL CLIENTE -->
+    <div class="modal-overlay" id="product-detail-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('product-detail-modal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="modal-detail-layout">
+                <div class="modal-detail-img-container" id="detail-modal-img">
+                    <!-- Img o SVG -->
+                </div>
+                
+                <div>
+                    <span class="modal-detail-category" id="detail-modal-category">Whisky</span>
+                    <h2 class="modal-detail-name" id="detail-modal-name">Old Parr 12 Años</h2>
+                </div>
+
+                <div class="modal-detail-price-box">
+                    <span class="lbl">Precio Regular</span>
+                    <span class="val" id="detail-modal-price">$0 COP</span>
+                </div>
+
+                <div class="modal-detail-stats">
+                    <div class="modal-detail-stat-item">
+                        <span class="lbl">Inventario</span>
+                        <span class="val" id="detail-modal-stock">0 unidades</span>
+                    </div>
+                    <div class="modal-detail-stat-item">
+                        <span class="lbl">Disponibilidad</span>
+                        <span class="val" id="detail-modal-status">Cargando</span>
+                    </div>
+                </div>
+
+                <div class="modal-detail-description" id="detail-modal-description">
+                    Descripción del producto.
+                </div>
+
+                <div style="margin-top: 15px;" id="detail-modal-buy-container">
+                    <!-- Botón de compra inyectado dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL B: FORMULARIO AGREGAR / EDITAR PRODUCTO (ADMIN) -->
+    <div class="modal-overlay" id="product-form-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('product-form-modal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h2 id="form-modal-title" style="font-size: 1.4rem; font-weight: 700; margin-bottom: 25px;">Agregar Licor</h2>
+
+            <form id="product-form" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="form-product-id">
+
+                <div class="input-group">
+                    <label for="form-name">Nombre Comercial del Producto</label>
+                    <input type="text" id="form-name" class="input-control" placeholder="Ej. Old Parr 12 años" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="form-category">Categoría de Licor</label>
+                    <select id="form-category" class="input-control" required>
+                        <option value="Whisky">Whisky</option>
+                        <option value="Ron">Ron</option>
+                        <option value="Vodka">Vodka</option>
+                        <option value="Tequila">Tequila</option>
+                        <option value="Cerveza">Cerveza</option>
+                        <option value="Aguardiente">Aguardiente</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="form-price">Precio de Venta al Público (COP)</label>
+                    <input type="number" id="form-price" class="input-control" placeholder="Ej. 185000" min="0" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="form-quantity">Existencias Iniciales (Stock)</label>
+                    <input type="number" id="form-quantity" class="input-control" placeholder="Ej. 15" min="0" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="form-description">Notas de Cata y Descripción</label>
+                    <textarea id="form-description" class="input-control" placeholder="Ej. Whisky escocés añejado durante 12 años..." required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Elegir Imagen Ilustrativa</label>
+                    <div class="preset-images-grid">
+                        <div class="preset-img-option active" data-img-name="whisky_bottle.png" onclick="selectPresetImage(this)">
+                            <img src="whisky_bottle.png" alt="Whisky">
+                        </div>
+                        <div class="preset-img-option" data-img-name="tequila_bottle.png" onclick="selectPresetImage(this)">
+                            <img src="tequila_bottle.png" alt="Tequila">
+                        </div>
+                        <div class="preset-img-option" data-img-name="corona_extra.jpg" onclick="selectPresetImage(this)">
+                            <img src="corona_extra.jpg" alt="Cerveza">
+                        </div>
+                        <div class="preset-img-option" data-img-name="aguardiente antioqueno.jpg" onclick="selectPresetImage(this)">
+                            <img src="aguardiente antioqueno.jpg" alt="Aguardiente">
+                        </div>
+                        <div class="preset-img-option" data-img-name="flor de cana.jpg" onclick="selectPresetImage(this)">
+                            <img src="flor de cana.jpg" alt="Ron">
+                        </div>
+                        <div class="preset-img-option" data-img-name="absolute vodka blue.jpg" onclick="selectPresetImage(this)">
+                            <img src="absolute vodka blue.jpg" alt="Vodka">
+                        </div>
+                        <div class="preset-img-option" data-img-name="default_bottle" onclick="selectPresetImage(this)">
+                            <i class="fa-solid fa-wine-bottle" style="color: var(--accent-color); font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 15px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Licor
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('product-form-modal')">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de la Aplicación -->
+    <script src="app.js"></script>
+</body>
+</html>
